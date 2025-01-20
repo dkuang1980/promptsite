@@ -221,4 +221,4 @@ promptsite run last-run my-prompt
 promptsite sync-git
 ```
 
-For more detailed documentation and examples, visit our [documentation](https://promptsite.readthedocs.io/).
+For more detailed documentation and examples, visit our [documentation](https://dkuang1980.github.io/promptsite/).
