@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "promptsite"
+version = "0.1.0"
+description = "PromptSite is a powerful prompt lifecycle management package that helps you version control, track, experiment and debug with your LLM prompts with ease."
+authors = ["Dakuang <dakuang1980@gmail.com>"]
+readme = "README.md"
+packages = [{include = "promptsite"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.1.7"
+pyyaml = "^6.0.1"
+gitpython = "^3.1.40"
+pydantic = "^2.10.0"
+datamodel-code-generator = "^0.26.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
+black = "^23.11.0"
+isort = "^5.12.0"
+pytest-mock = "^3.11.1"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.9.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+promptsite = "promptsite.cli:cli"
+
+[tool.ruff]
+# Enable the most common rules
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",  # line too long - let black handle this
+]
+
+# Same as Black.
+line-length = 88
+
+# Exclude files/directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.isort]
+known-first-party = ["promptsite"]
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.0"
+mkdocs-material = "^9.0.0"
+mkdocstrings-python = "^1.1.0"
