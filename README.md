@@ -1,5 +1,6 @@
 # PromptSite
 
+
 ## Overview
 
 *You will never miss a prompt version again with PromptSite.*
@@ -18,6 +19,9 @@ PromptSite is a powerful prompt lifecycle management package that helps you vers
 - **No Heavy Lifting**: Minimal setup, no servers, databases, or API keys required - works directly with your local filesystem or Git
 - **Seamless Integration**: Automatically tracks prompt versions and runs through simple Python decorators
 - **Developer-Centric**: Designed for data scientists and engineers to easily integrate into existing ML/LLM workflows
+
+
+Checkout the [documentation](https://dkuang1980.github.io/promptsite/).
 
 ## Installation
 
