@@ -2,7 +2,7 @@
 
 *You will never miss a prompt version again with PromptSite.*
 
-PromptSite is a powerful prompt lifecycle management package that helps you version control, track, and experiment with your LLM prompts with ease. It focuses on the experimental and prototyping phase before shipping to production.
+PromptSite is a lightweight prompt management package that helps you version control, track, and experiment with your LLM prompts with ease. It focuses on the experimental and prototyping phase before shipping to production.
 
 ## Key Features
 - **Version Control**: Track and manage different versions of your prompts during the engineering process
@@ -45,7 +45,7 @@ prompt = ps.register_prompt(
 # Add a new version
 new_version = ps.add_prompt_version(
     prompt_id="translation-prompt", 
-    content="Please translate the following text to {{ language }}: {{ text }}"
+    new_content="Please translate the following text to {{ language }}: {{ text }}"
 )
 
 # Track an LLM run
@@ -71,7 +71,7 @@ run = ps.add_run(
 ```python
 from promptsite.decorator import tracker
 from pydantic import BaseModel, Field
-from promptsite.variables import ArrayVariable
+from promptsite.model.variable import ArrayVariable
 
 class Weather(BaseModel):
     date: str = Field(description="The date of the weather data.")
@@ -94,11 +94,18 @@ def analyze_weather(content=None, llm_config=None, variables=None):
     return response.choices[0].message.content
 
 # Run the function
-analyze_weather(content="""The following dataset describes the weather for each day:
+content = """The following dataset describes the weather for each day:
 {{ weather }}
 
 Based on the weather data, predict which day is best for a picnic.
-""")
+"""
+
+data = [
+    {"date": "2024-01-01", "temperature": 20, "condition": "sunny"},
+    {"date": "2024-01-02", "temperature": 15, "condition": "rainy"},
+    {"date": "2024-01-03", "temperature": 25, "condition": "sunny"}
+]
+analyze_weather(content=content, variables={"weather": data})
 ```
 
 ### CLI Usage

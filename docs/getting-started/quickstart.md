@@ -72,7 +72,7 @@ PromptSite provides a decorator for easy integration with your existing LLM code
 ```python
 from promptsite.decorator import tracker
 from pydantic import BaseModel, Field
-from promptsite.variables import ArrayVariable
+from promptsite.model.variable import ArrayVariable
 
 class Weather(BaseModel):
     date: str = Field(description="The date of the weather data.")
