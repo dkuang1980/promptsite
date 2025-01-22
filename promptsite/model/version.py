@@ -142,14 +142,16 @@ class Version:
         """
         my_variables = self.variables or {}
         new_variables = variables or {}
+
         if set([key for key in my_variables.keys()]) != set(
             [key for key in new_variables.keys()]
         ):
             return False
 
         for variable_name, variable in my_variables.items():
-            if variable != new_variables[variable_name]:
+            if variable.to_dict() != new_variables[variable_name].to_dict():
                 return False
+
         return True
 
     def to_dict(self) -> Dict:
