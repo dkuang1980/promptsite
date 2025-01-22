@@ -47,25 +47,9 @@ class Variable:
             return cls()
         return klass.from_dict(data)
 
-    def __eq__(self, other: "Variable") -> bool:
-        """Compare this variable instance with another for equality.
-
-        Args:
-            other (Variable): Another Variable instance to compare with
-
-        Returns:
-            bool: True if the variables are of the same type and have the same configuration,
-                 False otherwise
-        """
-        if not isinstance(other, Variable):
-            return False
-        return self.to_dict() == other.to_dict()
-
 
 class SingleVariable(Variable):
     """Base class for simple variable types that don't require complex validation or transformation."""
-
-    pass
 
     def to_json(self, value: Any) -> str:
         """Convert a value to its JSON string representation.
@@ -126,8 +110,8 @@ class ComplexVariable(Variable):
         )
 
         return instructions.format(
-            schema=self.model.model_json_schema(),
-            dataset="The actual dataset is: \n" + json.dumps(value)
+            schema=json.dumps(self.model.model_json_schema(), sort_keys=True),
+            dataset="The actual dataset is: \n" + json.dumps(value, sort_keys=True)
             if not self.is_output
             else "",
         )
@@ -186,7 +170,7 @@ class StringVariable(SingleVariable):
         return isinstance(value, str)
 
 
-class NumberVariable(Variable):
+class NumberVariable(SingleVariable):
     """Variable type for numeric values.
 
     Validates that values are Python integer instances.
@@ -204,7 +188,7 @@ class NumberVariable(Variable):
         return isinstance(value, int)
 
 
-class BooleanVariable(Variable):
+class BooleanVariable(SingleVariable):
     """Variable type for boolean values.
 
     Validates that values are Python boolean instances.

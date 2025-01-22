@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 from promptsite.decorator import tracker
-from promptsite.model.variable import ArrayVariable, StringVariable
+from promptsite.model.variable import ArrayVariable, NumberVariable, StringVariable
 
 
 def test_decorator(promptsite):
@@ -35,7 +35,7 @@ def test_decorator(promptsite):
     )
     assert (
         response
-        == "This is a test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{'properties': {'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}, 'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}}, 'required': ['first_name', 'last_name', 'age'], 'title': 'TestModel', 'type': 'object'}\n\nThe actual dataset is: \n[{\"first_name\": \"John\", \"last_name\": \"Doe\", \"age\": 30}, {\"first_name\": \"Jane\", \"last_name\": \"Doe\", \"age\": 25}]\n"
+        == 'This is a test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n[{"age": 30, "first_name": "John", "last_name": "Doe"}, {"age": 25, "first_name": "Jane", "last_name": "Doe"}]\n'
     )
 
     # Verify prompt was registered
@@ -52,7 +52,7 @@ def test_decorator(promptsite):
     _run = promptsite.list_runs("test_prompt", version.version_id)[0]
     assert (
         _run.final_prompt
-        == "This is a test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{'properties': {'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}, 'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}}, 'required': ['first_name', 'last_name', 'age'], 'title': 'TestModel', 'type': 'object'}\n\nThe actual dataset is: \n[{\"first_name\": \"John\", \"last_name\": \"Doe\", \"age\": 30}, {\"first_name\": \"Jane\", \"last_name\": \"Doe\", \"age\": 25}]\n"
+        == 'This is a test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n[{"age": 30, "first_name": "John", "last_name": "Doe"}, {"age": 25, "first_name": "Jane", "last_name": "Doe"}]\n'
     )
     assert _run.llm_config == {"temperature": 0.7}
     assert _run.execution_time is not None
@@ -80,10 +80,7 @@ def test_decorator(promptsite):
     )
 
     # Verify the last run
-    _run = sorted(
-        promptsite.list_runs("test_prompt", version.version_id),
-        key=lambda x: x.created_at,
-    )[-1]
+    _run = promptsite.get_last_run("test_prompt")
     assert (
         _run.final_prompt
         == 'This is a test prompt version [{"first_name": "John", "last_name": "Doe", "age": 30}, {"first_name": "Jane", "last_name": "Doe", "age": 25}]'
@@ -110,17 +107,14 @@ def test_decorator(promptsite):
     )
     assert (
         response
-        == "This is a test prompt version Schema: {'properties': {'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}, 'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}}, 'required': ['first_name', 'last_name', 'age'], 'title': 'TestModel', 'type': 'object'}, Dataset: The actual dataset is: \n[{\"first_name\": \"John\", \"last_name\": \"Doe\", \"age\": 30}, {\"first_name\": \"Jane\", \"last_name\": \"Doe\", \"age\": 25}]"
+        == 'This is a test prompt version Schema: {"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}, Dataset: The actual dataset is: \n[{"age": 30, "first_name": "John", "last_name": "Doe"}, {"age": 25, "first_name": "Jane", "last_name": "Doe"}]'
     )
 
     # Verify the last run
-    _run = sorted(
-        promptsite.list_runs("test_prompt", version.version_id),
-        key=lambda x: x.created_at,
-    )[-1]
+    _run = promptsite.get_last_run("test_prompt")
     assert (
         _run.final_prompt
-        == "This is a test prompt version Schema: {'properties': {'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}, 'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}}, 'required': ['first_name', 'last_name', 'age'], 'title': 'TestModel', 'type': 'object'}, Dataset: The actual dataset is: \n[{\"first_name\": \"John\", \"last_name\": \"Doe\", \"age\": 30}, {\"first_name\": \"Jane\", \"last_name\": \"Doe\", \"age\": 25}]"
+        == 'This is a test prompt version Schema: {"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}, Dataset: The actual dataset is: \n[{"age": 30, "first_name": "John", "last_name": "Doe"}, {"age": 25, "first_name": "Jane", "last_name": "Doe"}]'
     )
     assert _run.llm_config == {"temperature": 0.9}
     assert _run.execution_time is not None
@@ -144,7 +138,7 @@ def test_decorator(promptsite):
 
     assert (
         response
-        == "This is a new test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{'properties': {'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}, 'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}}, 'required': ['age', 'first_name', 'last_name'], 'title': 'TestModel', 'type': 'object'}\n\nThe actual dataset is: \n[{\"first_name\": \"Alice\", \"last_name\": \"Smith\", \"age\": 35}, {\"first_name\": \"Bob\", \"last_name\": \"Jones\", \"age\": 40}]\n"
+        == 'This is a new test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n[{"age": 35, "first_name": "Alice", "last_name": "Smith"}, {"age": 40, "first_name": "Bob", "last_name": "Jones"}]\n'
     )
 
     # Verify a new version is created
@@ -152,13 +146,10 @@ def test_decorator(promptsite):
     assert version.content == "This is a new test prompt version {{ test_variable }}"
 
     # Verify the run was recorded
-    _run = sorted(
-        promptsite.list_runs("test_prompt", version.version_id),
-        key=lambda x: x.created_at,
-    )[-1]
+    _run = promptsite.get_last_run("test_prompt")
     assert (
         _run.final_prompt
-        == "This is a new test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{'properties': {'age': {'description': 'Age in years.', 'title': 'Age', 'type': 'integer'}, 'first_name': {'description': \"The person's first name.\", 'title': 'First Name', 'type': 'string'}, 'last_name': {'description': \"The person's last name.\", 'title': 'Last Name', 'type': 'string'}}, 'required': ['age', 'first_name', 'last_name'], 'title': 'TestModel', 'type': 'object'}\n\nThe actual dataset is: \n[{\"first_name\": \"Alice\", \"last_name\": \"Smith\", \"age\": 35}, {\"first_name\": \"Bob\", \"last_name\": \"Jones\", \"age\": 40}]\n"
+        == 'This is a new test prompt version A dataset formatted as a list of JSON objects that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n[{"age": 35, "first_name": "Alice", "last_name": "Smith"}, {"age": 40, "first_name": "Bob", "last_name": "Jones"}]\n'
     )
     assert _run.llm_config == {"temperature": 0}
     assert _run.execution_time is not None
@@ -192,3 +183,12 @@ def test_decorator(promptsite):
     assert prompt.description == "New Test prompt for decorator"
     assert prompt.tags == ["test"]
     assert prompt.variables["test_variable"].__class__ == StringVariable
+
+    response = mock_llm_call(
+        content="This is a new test prompt version {{ test_variable }}",
+        variables={"test_variable": 123},
+        variables_config={"test_variable": NumberVariable()},
+    )
+
+    version = promptsite.get_prompt("new_test_prompt").get_latest_version()
+    assert version.variables["test_variable"].__class__ == NumberVariable

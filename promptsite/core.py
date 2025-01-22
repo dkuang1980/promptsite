@@ -89,7 +89,10 @@ class PromptSite:
         return prompt
 
     def add_prompt_version(
-        self, prompt_id: str, new_content: Optional[str] = None
+        self,
+        prompt_id: str,
+        new_content: Optional[str] = None,
+        variables: Optional[Dict[str, Variable]] = None,
     ) -> Version:
         """Add a new version to an existing prompt.
 
@@ -118,7 +121,7 @@ class PromptSite:
                 "New content must be provided for the update."
             )
 
-        new_version = prompt.add_version(new_content)
+        new_version = prompt.add_version(new_content, variables=variables)
         self.storage.update_prompt(prompt_id, prompt.to_dict())
         return new_version
 
