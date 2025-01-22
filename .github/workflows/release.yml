@@ -3,12 +3,11 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - 'v*.*.*'  # Trigger only on version tags (e.g., v1.0.0)
+      - 'v.*.*.*'  # Trigger only on version tags (e.g., v1.0.0)
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
