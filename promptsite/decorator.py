@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from .config import Config
 from .core import PromptSite
-from .exceptions import PromptNotFoundError, ContentRequiredError
+from .exceptions import ContentRequiredError, PromptNotFoundError
 
 
 def tracker(
@@ -38,7 +38,7 @@ def tracker(
             if ps is None:
                 # Save config
                 conf = Config(config=ps_config)
-                
+
                 # Get or create PromptSite instance
                 ps = PromptSite(conf.get_storage_backend())
 

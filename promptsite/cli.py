@@ -50,7 +50,7 @@ def init(config: Optional[str]):
             return
 
     # Initialize config
-    conf = Config(config=config_kwargs)
+    Config(config=config_kwargs)
 
     # Display initialization info in a cleaner format
     click.echo("Initialized promptsite in current directory")

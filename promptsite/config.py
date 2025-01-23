@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import yaml
 
-from .exceptions import ConfigFileNotFoundError, StorageBackendNotFoundError
+from .exceptions import StorageBackendNotFoundError
 from .storage import StorageBackend
 from .storage.file import FileStorage
 from .storage.git import GitStorage
