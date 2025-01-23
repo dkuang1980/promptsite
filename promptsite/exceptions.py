@@ -41,6 +41,10 @@ class ConfigError(PromptSiteError):
 
     pass
 
+class ContentRequiredError(PromptSiteError):
+    """Raised when content is required but not provided."""
+
+    pass
 
 class VersionNotFoundError(PromptSiteError):
     """Raised when a prompt version is not found."""

@@ -284,3 +284,12 @@ def test_delete_prompt(promptsite, storage_path):
     # Verify prompt is no longer retrievable
     with pytest.raises(PromptNotFoundError):
         promptsite.get_prompt("test_delete")
+
+
+def test_get_version_from_initial_prompt(promptsite):
+    """Test getting a version from an initial prompt."""
+    promptsite.register_prompt("test_version_from_initial_prompt")
+    prompt = promptsite.get_prompt("test_version_from_initial_prompt")
+    assert prompt.get_latest_version() == None
+    
+    

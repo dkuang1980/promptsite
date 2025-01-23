@@ -19,7 +19,7 @@ class Config:
 
     BASE_DIRECTORY: str = ".promptsite"
 
-    def __init__(self) -> None:
+    def __init__(self, config: Dict[str, Any] = None) -> None:
         """
         Initialize Config with a configuration file path.
 
@@ -29,7 +29,11 @@ class Config:
 
         self.config_file: str = os.path.join(self.BASE_DIRECTORY, "config.yaml")
         os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
-        self.config = {}
+
+        if config:
+            self.save_config(config)
+        else:
+            self.load_config()
 
     def load_config(self) -> Dict[str, Any]:
         """
@@ -39,18 +43,15 @@ class Config:
             Dict[str, Any]: Configuration dictionary
         """
         if not os.path.exists(self.config_file):
-            raise ConfigFileNotFoundError("Config file not found")
+            return {}
 
         with open(self.config_file, "r", encoding="utf-8") as f:
             self.config = yaml.safe_load(f) or {}
             return self.config
 
-    def save_config(self, config: Dict[str, Any]) -> None:
+    def save_config(self, config: Dict[str, Any] = None) -> None:
         """Save current configuration to file with default values."""
-        # Set default values if not present
-        if config is None:
-            config = {}
-
+        config = config or {}
         config.setdefault("storage_backend", "file")
 
         with open(self.config_file, "w", encoding="utf-8") as f:
