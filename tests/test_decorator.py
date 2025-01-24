@@ -287,3 +287,42 @@ def test_decorator(promptsite):
     response = mock_llm_call()
 
     assert response == "This is a new test prompt version without content in the call"
+
+    @tracker(
+        prompt_id="new_test_prompt_with_disable_validation",
+        description="New Test prompt for decorator",
+        tags=["test"],
+        variables={"test_variable": StringVariable(disable_validation=True)},
+    )
+    def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+        # Simulate LLM response
+        return content
+
+    response = mock_llm_call(
+        content="This is a new test prompt version {{ test_variable }}",
+        variables={"test_variable": 123},
+    )
+
+    assert response == "This is a new test prompt version 123"
+
+    @tracker(
+        prompt_id="new_test_prompt_with_disable_validation",
+        description="New Test prompt for decorator",
+        tags=["test"],
+        variables={
+            "test_variable": ObjectVariable(model=TestModel, disable_validation=True)
+        },
+    )
+    def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+        # Simulate LLM response
+        return content
+
+    response = mock_llm_call(
+        content="This is a new test prompt version {{ test_variable }}",
+        variables={"test_variable": {"first_name": 123, "last_name": "Doe", "age": 30}},
+    )
+
+    assert (
+        response
+        == 'This is a new test prompt version A dataset formatted as one JSON object that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n{"age": 30, "first_name": 123, "last_name": "Doe"}\n'
+    )

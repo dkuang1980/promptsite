@@ -1,7 +1,6 @@
 import io
 import json
 from contextlib import redirect_stdout
-from dataclasses import dataclass
 from typing import Any, Dict
 
 from datamodel_code_generator import generate
@@ -10,6 +9,13 @@ from pydantic import BaseModel, ValidationError
 
 
 class Variable:
+    """Base class for all variable types.
+
+    Attributes:
+        description (str): Description of the variable
+        disable_validation (bool): Whether to disable validation for the variable
+    """
+
     def __init__(self, description: str = "", disable_validation: bool = False):
         self.description = description
         self.disable_validation = disable_validation
@@ -67,7 +73,6 @@ class SingleVariable(Variable):
         return value
 
 
-@dataclass
 class ComplexVariable(Variable):
     """Complex variable type that uses Pydantic models for validation and schema handling.
 
@@ -76,10 +81,13 @@ class ComplexVariable(Variable):
 
     Attributes:
         model (BaseModel): The Pydantic model used for validation and schema generation
+        is_output (bool): Whether the variable is an output variable
     """
 
-    model: BaseModel
-    is_output: bool = False
+    def __init__(self, model: BaseModel, is_output: bool = False, **kwargs):
+        self.model = model
+        self.is_output = is_output
+        super().__init__(**kwargs)
 
     @property
     def schema_instructions(self) -> str:
