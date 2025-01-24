@@ -10,6 +10,10 @@ from pydantic import BaseModel, ValidationError
 
 
 class Variable:
+    def __init__(self, description: str = "", disable_validation: bool = False):
+        self.description = description
+        self.disable_validation = disable_validation
+
     def validate(self, value: str) -> bool:
         """Validate if the given value matches the variable type.
 
@@ -167,6 +171,8 @@ class StringVariable(SingleVariable):
         Returns:
             bool: True if value is a string instance, False otherwise
         """
+        if self.disable_validation:
+            return True
         return isinstance(value, str)
 
 
@@ -185,6 +191,8 @@ class NumberVariable(SingleVariable):
         Returns:
             bool: True if value is an integer instance, False otherwise
         """
+        if self.disable_validation:
+            return True
         return isinstance(value, int)
 
 
@@ -203,6 +211,8 @@ class BooleanVariable(SingleVariable):
         Returns:
             bool: True if value is a boolean instance, False otherwise
         """
+        if self.disable_validation:
+            return True
         return isinstance(value, bool)
 
 
@@ -243,6 +253,8 @@ Here is the output schema:
             bool: True if value is a list and all items conform to the model schema,
                  False otherwise
         """
+        if self.disable_validation:
+            return True
         if not isinstance(value, list):
             return False
         for item in value:
@@ -289,6 +301,8 @@ Here is the output schema:
             bool: True if value is a dict and conforms to the model schema,
                  False otherwise
         """
+        if self.disable_validation:
+            return True
         if not isinstance(value, dict):
             return False
         try:
