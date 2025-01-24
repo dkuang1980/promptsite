@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 from datamodel_code_generator import generate
 from pydantic import *  # noqa F403
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 class Variable:
@@ -246,7 +246,9 @@ Here is the output schema:
         if not isinstance(value, list):
             return False
         for item in value:
-            if not self.model.model_validate(item):
+            try:
+                self.model.model_validate(item)
+            except ValidationError:
                 return False
         return True
 
@@ -289,6 +291,8 @@ Here is the output schema:
         """
         if not isinstance(value, dict):
             return False
-        if not self.model.model_validate(value):
+        try:
+            self.model.model_validate(value)
+            return True
+        except ValidationError:
             return False
-        return True

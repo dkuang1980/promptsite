@@ -1,13 +1,21 @@
 import pytest
+from pydantic import BaseModel, Field
 
+from promptsite.config import Config
+from promptsite.decorator import tracker
 from promptsite.exceptions import (
+    ContentRequiredError,
     InvalidPromptContentError,
     PromptAlreadyExistsError,
     PromptNotFoundError,
     RunNotFoundError,
+    StorageBackendNotFoundError,
     StorageError,
+    VariableUnmatchError,
+    VariableValidationError,
     VersionNotFoundError,
 )
+from promptsite.model.variable import ArrayVariable, ObjectVariable
 
 
 def test_get_nonexistent_prompt(promptsite):
@@ -117,3 +125,129 @@ def test_add_run_nonexistent_version(promptsite):
     assert "Version nonexistent_version not found in prompt test_run_error" in str(
         exc_info.value
     )
+
+
+def test_storage_backend_not_found(promptsite):
+    """Test retrieving a storage backend with an unsupported type."""
+    # Mock the configuration to have an unsupported storage backend
+    config = Config(config={"storage_backend": "unsupported_backend"})
+
+    with pytest.raises(StorageBackendNotFoundError) as exc_info:
+        config.get_storage_backend()
+
+    assert str(exc_info.value) == "Storage backend 'unsupported_backend' not found"
+
+
+def test_content_required_error(promptsite):
+    """Test content required error."""
+    with pytest.raises(ContentRequiredError):
+
+        @tracker(prompt_id="test_prompt", description="Test prompt for decorator")
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call()
+
+
+def test_variable_validation_error_object_variable(promptsite):
+    """Test variable validation error."""
+
+    class TestModel(BaseModel):
+        first_name: str = Field(description="The person's first name.")
+
+    with pytest.raises(VariableValidationError):
+
+        @tracker(
+            prompt_id="test_prompt",
+            description="Test prompt for decorator",
+            variables={"test_variable": ObjectVariable(model=TestModel)},
+        )
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call(
+            content="This is a new test prompt version {{ test_variable }}",
+            variables={"test_variable": {"first_name": 123}},
+        )
+
+    with pytest.raises(VariableValidationError):
+
+        @tracker(
+            prompt_id="test_prompt",
+            description="Test prompt for decorator",
+            variables={"test_variable": ObjectVariable(model=TestModel)},
+        )
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call(
+            content="This is a new test prompt version {{ test_variable }}",
+            variables={"test_variable": "person"},
+        )
+
+
+def test_variable_validation_error_array_variable(promptsite):
+    """Test variable validation error."""
+
+    class TestModel(BaseModel):
+        first_name: str = Field(description="The person's first name.")
+
+    with pytest.raises(VariableValidationError):
+
+        @tracker(
+            prompt_id="test_prompt",
+            description="Test prompt for decorator",
+            variables={"test_variable": ArrayVariable(model=TestModel)},
+        )
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call(
+            content="This is a new test prompt version {{ test_variable }}",
+            variables={"test_variable": "person"},
+        )
+
+    with pytest.raises(VariableValidationError):
+
+        @tracker(
+            prompt_id="test_prompt",
+            description="Test prompt for decorator",
+            variables={"test_variable": ArrayVariable(model=TestModel)},
+        )
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call(
+            content="This is a new test prompt version {{ test_variable }}",
+            variables={"test_variable": [{"first_name": 123}]},
+        )
+
+
+def test_variable_unmatch_error(promptsite):
+    """Test variable unmatch error."""
+
+    class TestModel(BaseModel):
+        first_name: str = Field(description="The person's first name.")
+
+    with pytest.raises(VariableUnmatchError):
+
+        @tracker(
+            prompt_id="test_prompt",
+            description="Test prompt for decorator",
+            variables={"test_variable": ObjectVariable(model=TestModel)},
+        )
+        def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+            # Simulate LLM response
+            return content
+
+        mock_llm_call(
+            content="This is a new test prompt version {{ test_variable }}",
+            variables={
+                "wrong_variable": {"first_name": "John", "last_name": "Doe", "age": 30}
+            },
+        )

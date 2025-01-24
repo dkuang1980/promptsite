@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from .config import Config
 from .core import PromptSite
-from .exceptions import ConfigError, PromptNotFoundError
+from .exceptions import ContentRequiredError, PromptNotFoundError
 
 
 def tracker(
@@ -37,8 +37,7 @@ def tracker(
             nonlocal ps
             if ps is None:
                 # Save config
-                conf = Config()
-                conf.save_config(ps_config)
+                conf = Config(config=ps_config)
 
                 # Get or create PromptSite instance
                 ps = PromptSite(conf.get_storage_backend())
@@ -52,7 +51,7 @@ def tracker(
 
             # Check if content is not provided
             if prompt_content is None or prompt_content == "":
-                raise ConfigError("The prompt content is required")
+                raise ContentRequiredError("The prompt content is required")
 
             try:
                 # Try to get existing prompt
@@ -85,14 +84,11 @@ def tracker(
                 )
                 version = prompt.get_latest_version()
 
-            prompt_content = version.content
-
-            if kwargs.get("variables"):
-                prompt_content = version.build_final_prompt(
-                    kwargs["variables"],
-                    no_instructions=kwargs.get("no_instructions", False),
-                    custom_instructions=kwargs.get("custom_instructions", ""),
-                )
+            prompt_content = version.build_final_prompt(
+                kwargs.get("variables", {}),
+                no_instructions=kwargs.get("no_instructions", False),
+                custom_instructions=kwargs.get("custom_instructions", ""),
+            )
 
             _llm_config = kwargs.get("llm_config", llm_config)
 
