@@ -91,7 +91,7 @@ from promptsite.model.variable import StringVariable
         "text": StringVariable()
     }
 )
-def process_text(content=None, variables=None):
+def process_text(content=None, **kwargs):
     return llm_call(content)
 ```
 
@@ -108,11 +108,46 @@ class Weather(BaseModel):
 @tracker(
     prompt_id="complex-prompt",
     variables={
-        "weather": ArrayVariable(Weather)
+        "weather": ArrayVariable(model=Weather)
     }
 )
-def process_weather(content=None, variables=None):
+def process_weather(content=None, **kwargs):
     return llm_call(content)
+```
+
+## Disable Validation
+
+The decorator supports disabling validation of variables. It is useful when you have validated the variables in the prompt, it can reduce the run time of the decorated function.
+
+```python
+@tracker(
+    prompt_id="my-prompt-with-disable-validation",
+    variables={
+        "weather": ArrayVariable(model=Weather, disable_validation=True)  # Disable validation of the variable
+    }
+)
+def my_function(content=None, **kwargs):
+    return llm_call(content)
+
+my_function(
+    content="This is a test", 
+    variables={"weather": [{"date": "2021-01-01", "temperature": 20, "condition": "sunny"}]}
+)
+```
+
+## Disable Tracking
+
+The decorator supports disabling tracking of runs. It is useful when you want to call the LLM repeatly with the same content, i.e. in production.
+
+```python
+@tracker(
+    prompt_id="my-prompt",
+    disable_tracking=True
+)
+def my_function(content=None, **kwargs):
+    pass    
+
+my_function()
 ```
 
 ## Error Handling
@@ -128,7 +163,7 @@ Example error handling:
 ```python
 try:
     @tracker(prompt_id="my-prompt")
-    def my_function():
+    def my_function(content=None, **kwargs):
         pass
 except ConfigError as e:
     print(f"Configuration error: {e}")

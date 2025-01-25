@@ -17,6 +17,7 @@ def tracker(
     ps: Optional[PromptSite] = None,
     llm_config: Optional[Dict] = None,
     variables: Optional[Dict] = None,
+    disable_tracking: bool = False
 ) -> Callable:
     """
     Decorator to automatically register prompts and track their executions.
@@ -29,6 +30,7 @@ def tracker(
         ps_config: Optional configuration dictionary for PromptSite
         ps: Optional PromptSite instance (will create new one if not provided)
         llm_config: Optional configuration dictionary for the LLM
+        disable_tracking: Optional boolean to disable tracking of versions and runs
     """
 
     def decorator(func: Callable) -> Callable:
@@ -57,22 +59,26 @@ def tracker(
                 # Try to get existing prompt
                 prompt = ps.get_prompt(prompt_id)
 
-                latest_version = prompt.get_latest_version()
-
-                # Add new version if content or variables changed
+                version = prompt.get_latest_version()
+                
+                # Add a new version if content or variables changed
+                
                 if (
-                    latest_version.content != prompt_content
-                    or not latest_version.compare_variables(
-                        prompt_variables_config or {}
-                    )
+                    version is None or
+                    version.content != prompt_content or
+                    not version.compare_variables(prompt_variables_config or {})
                 ):
+                    ps.update_prompt(
+                        prompt_id,
+                        variables=prompt_variables_config,
+                    )
+
                     version = ps.add_prompt_version(
                         prompt_id,
                         prompt_content,
                         variables=prompt_variables_config,
                     )
-                else:
-                    version = prompt.get_latest_version()
+                
             except PromptNotFoundError:
                 # Register new prompt if it doesn't exist
                 prompt = ps.register_prompt(
@@ -83,7 +89,7 @@ def tracker(
                     variables=variables,
                 )
                 version = prompt.get_latest_version()
-
+            
             prompt_content = version.build_final_prompt(
                 kwargs.get("variables", {}),
                 no_instructions=kwargs.get("no_instructions", False),
@@ -100,16 +106,17 @@ def tracker(
             response = func(*args, **kwargs)
             execution_time = time.time() - start_time
 
-            # Add run to version
-            ps.add_run(
-                prompt_id=prompt.id,
-                version_id=version.version_id,
-                final_prompt=prompt_content,
-                variables=kwargs.get("variables", {}),
-                llm_output=response,
-                execution_time=execution_time,
-                llm_config=kwargs.get("llm_config", llm_config),
-            )
+            if not disable_tracking:
+                # Add run to version
+                ps.add_run(
+                    prompt_id=prompt.id,
+                    version_id=version.version_id,
+                    final_prompt=prompt_content,
+                    variables=kwargs.get("variables", {}),
+                    llm_output=response,
+                    execution_time=execution_time,
+                    llm_config=kwargs.get("llm_config", llm_config),
+                )
 
             try:
                 return json.loads(response.replace("```json", "").replace("```", ""))

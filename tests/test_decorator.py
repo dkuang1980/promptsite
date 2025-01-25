@@ -292,7 +292,7 @@ def test_decorator(promptsite):
         prompt_id="new_test_prompt_with_disable_validation",
         description="New Test prompt for decorator",
         tags=["test"],
-        variables={"test_variable": StringVariable(disable_validation=True)},
+        variables={"test_variable": StringVariable(disable_validation=True, description="This is a test variable")},
     )
     def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
         # Simulate LLM response
@@ -326,3 +326,30 @@ def test_decorator(promptsite):
         response
         == 'This is a new test prompt version A dataset formatted as one JSON object that conforms to the JSON schema below.\n{"properties": {"age": {"description": "Age in years.", "title": "Age", "type": "integer"}, "first_name": {"description": "The person\'s first name.", "title": "First Name", "type": "string"}, "last_name": {"description": "The person\'s last name.", "title": "Last Name", "type": "string"}}, "required": ["first_name", "last_name", "age"], "title": "TestModel", "type": "object"}\n\nThe actual dataset is: \n{"age": 30, "first_name": 123, "last_name": "Doe"}\n'
     )
+
+
+    @tracker(
+        prompt_id="new_test_prompt_with_disable_tracking",
+        description="New Test prompt for decorator",
+        tags=["test"],
+        disable_tracking=True
+    )
+    def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
+        # Simulate LLM response
+        return content
+
+    response = mock_llm_call(
+        content="This is a new test prompt with disable tracking",
+    )
+
+    version = promptsite.get_prompt("new_test_prompt_with_disable_tracking").get_latest_version()
+    runs_before = len(version.runs)
+
+    response = mock_llm_call(
+        content="This is a new test prompt with disable tracking",
+    )
+
+    version = promptsite.get_prompt("new_test_prompt_with_disable_tracking").get_latest_version()
+    runs_after = len(version.runs)
+
+    assert runs_after == runs_before
