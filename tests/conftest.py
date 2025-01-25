@@ -30,8 +30,6 @@ def config(storage_path):
         shutil.rmtree(".promptsite")
 
     config = Config()
-    config.config = {"storage_backend": "file"}
-    config.save_config(config.config)
     yield config
     # Cleanup config file and directory
     if os.path.exists(config.config_file):
