@@ -62,11 +62,17 @@ def tracker(
                 version = prompt.get_latest_version()
                 
                 # Add a new version if content or variables changed
+                
                 if (
                     version is None or
                     version.content != prompt_content or
                     not version.compare_variables(prompt_variables_config or {})
                 ):
+                    ps.update_prompt(
+                        prompt_id,
+                        variables=prompt_variables_config,
+                    )
+
                     version = ps.add_prompt_version(
                         prompt_id,
                         prompt_content,
@@ -83,7 +89,7 @@ def tracker(
                     variables=variables,
                 )
                 version = prompt.get_latest_version()
-
+            
             prompt_content = version.build_final_prompt(
                 kwargs.get("variables", {}),
                 no_instructions=kwargs.get("no_instructions", False),

@@ -88,6 +88,22 @@ class PromptSite:
         self.storage.create_prompt(prompt_id, prompt.to_dict())
         return prompt
 
+    def update_prompt(
+        self,
+        prompt_id: str,
+        **kwargs
+    ) -> None:
+        """Update the variables of a prompt.
+
+        Args:
+            prompt_id: ID of the prompt to update
+            kwargs: Optional fields to update
+        """
+        prompt = self.get_prompt(prompt_id)
+        for field, value in kwargs.items():
+            setattr(prompt, field, value)
+        self.storage.update_prompt(prompt_id, prompt.to_dict())
+
     def add_prompt_version(
         self,
         prompt_id: str,
