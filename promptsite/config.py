@@ -42,12 +42,13 @@ class Config:
         Returns:
             Dict[str, Any]: Configuration dictionary
         """
-        if not os.path.exists(self.config_file):
-            return {}
+        self.config = {}
+        self.config.setdefault("storage_backend", "file")
 
-        with open(self.config_file, "r", encoding="utf-8") as f:
-            self.config = yaml.safe_load(f) or {}
-            return self.config
+        if os.path.exists(self.config_file):
+            with open(self.config_file, "r", encoding="utf-8") as f:
+                self.config = yaml.safe_load(f) or {}
+        return self.config
 
     def save_config(self, config: Dict[str, Any] = None) -> None:
         """Save current configuration to file with default values."""
