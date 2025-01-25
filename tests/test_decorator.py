@@ -292,7 +292,7 @@ def test_decorator(promptsite):
         prompt_id="new_test_prompt_with_disable_validation",
         description="New Test prompt for decorator",
         tags=["test"],
-        variables={"test_variable": StringVariable(disable_validation=True)},
+        variables={"test_variable": StringVariable(disable_validation=True, description="This is a test variable")},
     )
     def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
         # Simulate LLM response
