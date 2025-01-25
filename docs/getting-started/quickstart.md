@@ -32,7 +32,10 @@ prompt = ps.register_prompt(
     prompt_id="translation-prompt",
     initial_content="Translate this text: {{ text }}",
     description="Basic translation prompt",
-    tags=["translation", "basic"]
+    tags=["translation", "basic"],
+    variables={
+        "text": StringVariable(description="The text to translate.")
+    }
 )
 ```
 
@@ -41,7 +44,11 @@ prompt = ps.register_prompt(
 ```python
 new_version = ps.add_prompt_version(
     prompt_id="translation-prompt",
-    content="Please translate the following text to {{ language }}: {{ text }}"
+    content="Please translate the following text to {{ language }}: {{ text }}",
+    variables={
+        "text": StringVariable(description="The text to translate."),
+        "language": StringVariable(description="The language to translate to.")
+    }
 )
 ```
 

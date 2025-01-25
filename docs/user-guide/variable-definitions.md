@@ -113,11 +113,22 @@ Output variables are variables that are returned by the LLM. To define an output
 ```python
 from promptsite.model.variable import ArrayVariable
 
+class Weather(BaseModel):
+    date: str = Field(description="The date of the weather data.")
+    temperature: float = Field(description="The temperature in Celsius.")
+    condition: str = Field(description="The weather condition (sunny, rainy, etc).")
+
+class Prediction(BaseModel):
+    date: str = Field(description="The date of the weather data.")
+    temperature: float = Field(description="The temperature in Celsius.")
+    condition: str = Field(description="The weather condition (sunny, rainy, etc).")
+
 ps.register_prompt(
     prompt_id="weather-prediction",
-    initial_content="Predict the weather for the following days: \n {{ weather }}",
+    initial_content="Predict the weather for the next 7 days based on \n {{ last_week_weather }} \n\n {{ prediction }}",
     variables={
-        "output": ArrayVariable(Weather, is_output=True)
+        "last_week_weather": ArrayVariable(Weather),
+        "prediction": ArrayVariable(Prediction, is_output=True)
     }
 )
 ```
