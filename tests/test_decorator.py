@@ -21,7 +21,6 @@ def test_decorator(promptsite):
         prompt_id="test_prompt",
         description="Test prompt for decorator",
         tags=["test"],
-        ps_config={"storage_backend": "file"},
         variables={"test_variable": ArrayVariable(model=TestModel)},
     )
     def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
@@ -170,6 +169,7 @@ def test_decorator(promptsite):
         prompt_id="new_test_prompt_boolean",
         description="New Test prompt for decorator",
         tags=["test"],
+        ps_config={"storage_backend": "file"},
         variables={"test_variable": BooleanVariable()},
     )
     def mock_llm_call(content=None, llm_config=None, variables=None, **kwargs):
