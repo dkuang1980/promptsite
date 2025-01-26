@@ -21,14 +21,14 @@ class Prompt:
         id (str): Unique identifier for the prompt
         description (str): Description of the prompt
         tags (List[str]): List of tags associated with the prompt
-        versions (Dict[str, Version]): Dictionary of versions for the prompt
+        versions (Optional[Dict[str, Version]]): Dictionary of versions for the prompt
         variables (Optional[Dict[str, Variable]]): Dictionary of variables for the prompt
     """
 
     id: str
     description: str = ""
     tags: List[str] = field(default_factory=list)
-    versions: Dict[str, Version] = field(default_factory=dict)
+    versions: Optional[Dict[str, Version]] = field(default_factory=dict)
     variables: Optional[Dict[str, Variable]] = field(default_factory=dict)
 
     def add_version(
@@ -61,21 +61,31 @@ class Prompt:
             return None
         return sorted(self.versions.values(), key=lambda v: v.created_at)[-1]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, columns: Optional[List[str]] = None) -> Dict[str, Any]:
         """Convert the prompt to a dictionary representation.
 
         Returns:
             Dict[str, Any]: Dictionary containing the prompt's data
         """
-        return {
-            "id": self.id,
-            "description": self.description,
-            "tags": self.tags,
-            "versions": [v.to_dict() for v in self.versions.values()],
-            "variables": {k: v.to_dict() for k, v in self.variables.items()}
-            if self.variables
-            else None,
-        }
+        if columns is None:
+            columns = ["id", "description", "tags", "versions", "variables"]
+
+        _dict = {}
+        if "id" in columns:
+            _dict["id"] = self.id
+        if "description" in columns:
+            _dict["description"] = self.description
+        if "tags" in columns:
+            _dict["tags"] = self.tags
+        if "versions" in columns:
+            _dict["versions"] = [v.to_dict() for v in self.versions.values()]
+        if "variables" in columns:
+            _dict["variables"] = (
+                {k: v.to_dict() for k, v in self.variables.items()}
+                if self.variables
+                else None
+            )
+        return _dict
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Prompt":
@@ -98,7 +108,9 @@ class Prompt:
             if data.get("variables")
             else None,
         )
+
         for version_data in data.get("versions", []):
             version = Version.from_dict(version_data)
             prompt.versions[version.version_id] = version
+
         return prompt

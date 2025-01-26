@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import List
 
 try:
     from datetime import UTC  # type: ignore
@@ -45,23 +46,43 @@ class Run:
         """Generate a run ID based on the hash of the run_at timestamp."""
         return f"run_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{id(self)}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, columns: Optional[List[str]] = None) -> Dict[str, Any]:
         """
         Convert the run to a dictionary representation.
 
         Returns:
             Dict[str, Any]: Dictionary containing the run's data.
         """
-        return {
-            "run_id": self.run_id,
-            "created_at": str(self.created_at),
-            "llm_output": self.llm_output,
-            "final_prompt": self.final_prompt,
-            "variables": self.variables,
-            "execution_time": self.execution_time,
-            "llm_config": self.llm_config,
-            "run_at": str(self.run_at),
-        }
+        if columns is None:
+            columns = [
+                "run_id",
+                "created_at",
+                "run_at",
+                "final_prompt",
+                "variables",
+                "llm_output",
+                "execution_time",
+                "llm_config",
+            ]
+
+        _dict = {}
+        if "run_id" in columns:
+            _dict["run_id"] = self.run_id
+        if "created_at" in columns:
+            _dict["created_at"] = str(self.created_at)
+        if "llm_output" in columns:
+            _dict["llm_output"] = self.llm_output
+        if "final_prompt" in columns:
+            _dict["final_prompt"] = self.final_prompt
+        if "variables" in columns:
+            _dict["variables"] = self.variables
+        if "execution_time" in columns:
+            _dict["execution_time"] = self.execution_time
+        if "llm_config" in columns:
+            _dict["llm_config"] = self.llm_config
+        if "run_at" in columns:
+            _dict["run_at"] = str(self.run_at)
+        return _dict
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Run":
