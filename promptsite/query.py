@@ -95,10 +95,16 @@ class PromptQuery(Query):
         return prompt_dicts
 
     def where(self, prompt_id: str) -> "PromptQuery":
-        """Filter the query."""
+        """Filter the query.
+
+        Args:
+            prompt_id: The ID of the prompt to filter by
+
+        Returns:
+            PromptQuery: The filtered query
+        """
         self.prompt_id = prompt_id
         return self
-
 
 class VersionQuery(Query):
     """Query Class for versions.
@@ -151,6 +157,7 @@ class VersionQuery(Query):
 
         Args:
             prompt_id: The ID of the prompt to filter by
+            version_id: The ID of the version to filter by
 
         Returns:
             VersionQuery: The filtered query
@@ -218,13 +225,17 @@ class RunQuery(Query):
         return run_dicts
 
     def where(
-        self, prompt_id: str, version_id: str = None, run_id: str = None
+        self,
+        prompt_id: str,
+        version_id: str = None,
+        run_id: str = None
     ) -> "RunQuery":
         """Filter the query.
 
         Args:
             prompt_id: The ID of the prompt to filter by
             version_id: The ID of the version to filter by
+            run_id: The ID of the run to filter by
 
         Returns:
             RunQuery: The filtered query

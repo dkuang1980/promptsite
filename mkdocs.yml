@@ -29,6 +29,7 @@ nav:
     - Storage: api/storage.md
     - Models: api/models.md
     - Exceptions: api/exceptions.md
+    - Query: api/query.md
 
 markdown_extensions:
   - pymdownx.highlight:
