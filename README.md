@@ -29,9 +29,9 @@ Checkout the [documentation](https://dkuang1980.github.io/promptsite/).
 pip install promptsite
 ```
 
-## Quick Start
+## Quick Start with the Decorator
 
-The following example shows how to use the `@tracker` decorator to auto track your prompt in your LLM calls.
+The following example shows how to use the `@tracker` decorator to auto track your prompt versions andruns in your LLM calls.
 
 ### Define LLM call function with the `@tracker` decorator
 
@@ -58,7 +58,7 @@ def write_email(content=None, **kwargs):
     return response.choices[0].message.content
 
 
-# prompt with variables
+# A complex prompt with variables
 from promptsite.model.variable import ArrayVariable
 from pydantic import BaseModel, Field
 
@@ -148,6 +148,111 @@ variable_prompt_versions = ps.versions.where(prompt_id=variable_prompt["id"]).al
 
 # Get all the runs for the prompt as a pandas dataframe
 variable_prompt_runs = ps.runs.where(prompt_id=variable_prompt["id"]).as_df()
+```
+
+## Python Core APIs
+
+Besides using the decorator, you can directly use PromptSite's core functionality in your Python code:
+
+```python
+from promptsite import PromptSite
+from promptsite.config import Config
+
+# you can use either file or git storage
+ps = PromptSite()
+
+
+# Register a new prompt
+prompt = ps.register_prompt(
+    prompt_id="translation-prompt",
+    initial_content="Translate this text to Spanish: Hi",
+    description="Basic translation prompt",
+    tags=["translation", "basic"]
+)
+
+# Add a new version
+new_version = ps.add_prompt_version(
+    prompt_id="translation-prompt",
+    new_content="Please translate the following text to Spanish: Hello world",
+)
+
+# Get prompt and version information
+prompt = ps.get_prompt("translation-prompt")
+
+# List all versions
+all_versions = ps.list_versions("translation-prompt")
+
+# Add an LLM run
+run = ps.add_run(
+    prompt_id="translation-prompt",
+    version_id=new_version.version_id,
+    llm_output="Hola mundo",
+    execution_time=0.5,
+    llm_config={
+        "model": "gpt-4",
+        "temperature": 0.7
+    },
+    final_prompt="Please translate the following text to Spanish: Hello"
+)
+
+# List all runs
+runs = ps.list_runs("translation-prompt", new_version.version_id)
+
+# Get a specific run
+run = ps.get_run("translation-prompt", version_id=new_version.version_id, run_id=runs[-1].run_id)
+```
+
+## CLI Commands
+
+### Storage Backend Setup
+
+#### File Storage (Default)
+Initialize PromptSite with the defaultfile storage:
+
+```bash
+promptsite init
+```
+
+### Prompt Management
+
+1. Register a new prompt:
+```bash
+promptsite prompt register my-prompt --content "Translate this text: {{text}}" --description "Translation prompt" --tags translation gpt
+```
+
+2. List all prompts:
+```bash
+promptsite prompt list
+```
+
+3. Add a new version:
+```bash
+promptsite version add my-prompt --content "Please translate the following text: {{text}}"
+```
+
+4. View version history:
+```bash
+promptsite version list my-prompt
+```
+
+5. Get a specific version:
+```bash
+promptsite version get my-prompt <version-id>
+```
+
+6. View run history:
+```bash
+promptsite run list my-prompt
+```
+
+7. Get a specific run:
+```bash
+promptsite run get my-prompt <run-id>
+```
+
+8. Get the last run:
+```bash
+promptsite run last-run my-prompt
 ```
 
 For more detailed documentation and examples, visit our [documentation](https://dkuang1980.github.io/promptsite/).
