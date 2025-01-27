@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "promptsite"
-version = "0.2.0"
+version = "0.3.0"
 description = "PromptSite is a lightweight prompt lifecycle management package that helps you version control, track, experiment and debug with your LLM prompts with ease."
 authors = ["Dakuang <dakuang1980@gmail.com>"]
 readme = "README.md"
