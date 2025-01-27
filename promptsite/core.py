@@ -19,6 +19,7 @@ from .model.prompt import Prompt
 from .model.run import Run
 from .model.variable import Variable
 from .model.version import Version
+from .query import PromptQuery, Query, RunQuery, VersionQuery
 from .storage import StorageBackend
 from .storage.file import FileStorage
 
@@ -88,11 +89,7 @@ class PromptSite:
         self.storage.create_prompt(prompt_id, prompt.to_dict())
         return prompt
 
-    def update_prompt(
-        self,
-        prompt_id: str,
-        **kwargs
-    ) -> None:
+    def update_prompt(self, prompt_id: str, **kwargs) -> None:
         """Update the variables of a prompt.
 
         Args:
@@ -141,12 +138,13 @@ class PromptSite:
         self.storage.update_prompt(prompt_id, prompt.to_dict())
         return new_version
 
-    def get_prompt(self, prompt_id: str) -> Prompt:
+    def get_prompt(self, prompt_id: str, exclude_versions: bool = False) -> Prompt:
         """
         Get a prompt by its id.
 
         Args:
             prompt_id: ID of the prompt to retrieve
+            exclude_versions: Whether to exclude versions from the prompt
 
         Returns:
             Prompt: The requested prompt
@@ -154,20 +152,22 @@ class PromptSite:
         Raises:
             PromptNotFoundError: If prompt with given ID doesn't exist
         """
-        prompt_data = self.storage.get_prompt(prompt_id)
+        prompt_data = self.storage.get_prompt(
+            prompt_id, exclude_versions=exclude_versions
+        )
         if not prompt_data:
             raise PromptNotFoundError(f"Prompt '{prompt_id}' not found.")
 
         return Prompt.from_dict(prompt_data)
 
-    def list_prompts(self) -> List[Prompt]:
+    def list_prompts(self, exclude_versions: bool = False) -> List[Prompt]:
         """Get all registered prompts.
 
         Returns:
             List[Prompt]: List of all prompts
         """
-        prompts = self.storage.list_prompts()
-        return [self.get_prompt(prompt["id"]) for prompt in prompts]
+        prompts = self.storage.list_prompts(exclude_versions=exclude_versions)
+        return [Prompt.from_dict(prompt) for prompt in prompts]
 
     def get_version(self, prompt_id: str, version_id: str) -> Version:
         """Get a specific version of a prompt.
@@ -190,7 +190,9 @@ class PromptSite:
             )
         return prompt.versions[version_id]
 
-    def list_versions(self, prompt_id: str) -> Dict[str, Version]:
+    def list_versions(
+        self, prompt_id: str, exclude_runs: bool = False
+    ) -> List[Version]:
         """
         Get all versions of a prompt.
 
@@ -203,8 +205,8 @@ class PromptSite:
         Raises:
             PromptNotFoundError: If prompt with given ID doesn't exist
         """
-        prompt = self.get_prompt(prompt_id)
-        return prompt.versions
+        versions = self.storage.list_versions(prompt_id, exclude_runs=exclude_runs)
+        return [Version.from_dict(version) for version in versions]
 
     def delete_prompt(self, prompt_id: str) -> None:
         """Delete a prompt and its associated file data.
@@ -298,8 +300,8 @@ class PromptSite:
         Returns:
             List[Run]: List of all runs for the version
         """
-        version = self.get_version(prompt_id, version_id)
-        return list(version.runs.values())
+        runs = self.storage.list_runs(prompt_id, version_id)
+        return [Run.from_dict(run) for run in runs]
 
     def sync_git(self) -> None:
         """Synchronize changes with git remote if storage backend supports it.
@@ -353,3 +355,18 @@ class PromptSite:
             return sorted(runs, key=lambda x: x.created_at)[-1]
 
         return None
+
+    @property
+    def prompts(self) -> Query:
+        """Get all prompts as a pandas DataFrame."""
+        return PromptQuery(self)
+
+    @property
+    def versions(self) -> Query:
+        """Get all versions as a pandas DataFrame."""
+        return VersionQuery(self)
+
+    @property
+    def runs(self) -> Query:
+        """Get all runs as a pandas DataFrame."""
+        return RunQuery(self)

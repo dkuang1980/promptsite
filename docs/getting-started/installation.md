@@ -14,7 +14,8 @@ PromptSite requires Python 3.8 or later and has the following core dependencies:
 - pyyaml: YAML file handling
 - pydantic: Data validation
 - gitpython: Git repository management
-- boto3: AWS integration (optional)
+- datamodel-code-generator: Data model code generator
+- pandas: Data analysis library
 
 ## Development Installation
 

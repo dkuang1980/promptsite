@@ -164,14 +164,16 @@ class FileStorage(StorageBackend):
         if versions:
             self.add_version(prompt_id, versions[0])
 
-    def get_prompt(self, prompt_id: str) -> Optional[Dict]:
+    def get_prompt(
+        self, prompt_id: str, exclude_versions: bool = False
+    ) -> Optional[Dict]:
         """Get prompt data including versions."""
         prompt_path = os.path.join(self.prompts_dir, prompt_id, "prompt.yaml")
         try:
             with open(prompt_path, "r") as f:
                 data = yaml.safe_load(f)
                 # Get versions from list_versions
-                if data:
+                if not exclude_versions:
                     data["versions"] = self.list_versions(prompt_id)
                     # Convert version data back to proper datetime objects
                     for version in data["versions"]:
@@ -302,8 +304,12 @@ class FileStorage(StorageBackend):
         with open(run_path, "w") as f:
             yaml.safe_dump(run_data, f, sort_keys=False)
 
-    def list_versions(self, prompt_id: str) -> List[Dict]:
+    def list_versions(self, prompt_id: str, exclude_runs: bool = False) -> List[Dict]:
         """List all versions for a specific prompt.
+
+        Args:
+            prompt_id (str): ID of the prompt
+            exclude_runs (bool): Whether to exclude runs from the version data
 
         Returns:
             List of dictionaries containing version data.
@@ -325,7 +331,10 @@ class FileStorage(StorageBackend):
                 ) and os.path.exists(version_file):
                     with open(version_file, "r") as f:
                         version_data = yaml.safe_load(f)
-                        version_data["runs"] = self.list_runs(prompt_id, version_dir)
+                        if not exclude_runs:
+                            version_data["runs"] = self.list_runs(
+                                prompt_id, version_dir
+                            )
                         versions.append(version_data)
 
             # Sort versions by created_at timestamp
@@ -372,7 +381,7 @@ class FileStorage(StorageBackend):
         except FileNotFoundError:
             return None
 
-    def list_prompts(self) -> List[Dict]:
+    def list_prompts(self, exclude_versions: bool = False) -> List[Dict]:
         """List all prompts in storage with their complete information.
 
         Returns:
@@ -385,14 +394,12 @@ class FileStorage(StorageBackend):
 
             prompts = []
             for prompt_id in os.listdir(prompts_dir):
-                prompt_path = os.path.join(prompts_dir, prompt_id)
-                prompt_yaml = os.path.join(prompt_path, "prompt.yaml")
-
-                if os.path.isdir(prompt_path) and os.path.exists(prompt_yaml):
-                    # Get the prompt data using existing method which already includes versions
-                    prompt_data = self.get_prompt(prompt_id)
-                    if prompt_data:
-                        prompts.append(prompt_data)
+                # Get the prompt data using existing method which already includes versions
+                prompt_data = self.get_prompt(
+                    prompt_id, exclude_versions=exclude_versions
+                )
+                if prompt_data:
+                    prompts.append(prompt_data)
 
             return prompts
         except FileNotFoundError:

@@ -20,7 +20,7 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest -cov=promptsite --cov-report=html --cov-fail-under=75 tests/ 
+          poetry run pytest -cov=promptsite --cov-report=html --cov-fail-under=75 -s tests/ 
 
   lint:
     runs-on: ubuntu-latest

@@ -29,66 +29,125 @@ Checkout the [documentation](https://dkuang1980.github.io/promptsite/).
 pip install promptsite
 ```
 
-## Quick Start
+## Quick Start with the Decorator
+
+The following example shows how to use the `@tracker` decorator to auto track your prompt versions andruns in your LLM calls.
+
+### Define LLM call function with the `@tracker` decorator
 
 ```python
-from promptsite import PromptSite
-
-# Initialize PromptSite with the defile storage
-ps = PromptSite()
-
-# Register a new prompt
-prompt = ps.register_prompt(
-    prompt_id="translation-prompt",
-    description="Basic translation prompt",
-    tags=["translation", "basic"]
-)
-
-```
-
-## Prompt Auto tracking 
-
-You can use the decorator to auto track your prompt in your LLM calls.
-
-```python
+import os
+from openai import OpenAI
 from promptsite.decorator import tracker
 from pydantic import BaseModel, Field
-from promptsite.model.variable import ArrayVariable
 
-class Weather(BaseModel):
-    date: str = Field(description="The date of the weather data.")
-    temperature: float = Field(description="The temperature in Celsius.")
-    condition: str = Field(description="The weather condition (sunny, rainy, etc).")
+os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
 
+client = OpenAI()
+
+# simple prompt
 @tracker(
-    prompt_id="analyze-weather-prompt",
-    description="Analyze weather data and predict which day is best for a picnic",
-    tags=["weather", "analysis"],
-    variables={
-        "weather": ArrayVariable(model=Weather)
-    }
+    prompt_id="email-writer"
 )
-def analyze_weather(content=None, variables=None, **kwargs):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
+def write_email(content=None, **kwargs):
+    
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": content}]
     )
     return response.choices[0].message.content
 
-# Run the function
-content = """The following dataset describes the weather for each day:
-{{ weather }}
 
-Based on the weather data, predict which day is best for a picnic.
-"""
+# A complex prompt with variables
+from promptsite.model.variable import ArrayVariable
+from pydantic import BaseModel, Field
 
-data = [
-    {"date": "2024-01-01", "temperature": 20, "condition": "sunny"},
-    {"date": "2024-01-02", "temperature": 15, "condition": "rainy"},
-    {"date": "2024-01-03", "temperature": 25, "condition": "sunny"}
+class Customer(BaseModel):
+    user_id: str = Field(description="The user id of the customer")
+    name: str = Field(description="The name of the customer")
+    gender: str = Field(description="The gender of the customer")
+    product_name: str = Field(description="The name of the product")
+    complaint: str = Field(description="The complaint of the customer")
+
+class Email(BaseModel):
+    user_id: str = Field(description="The user id of the customer")
+    subject: str = Field(description="The subject of the email")
+    body: str = Field(description="The body of the email")
+
+@tracker(
+    prompt_id="email-writer-to-customers",
+    variables={
+        "customers": ArrayVariable(model=Customer),
+        "emails": ArrayVariable(model=Email, is_output=True)
+    }
+)
+def write_email_to_customers(content=None, **kwargs):
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": content}]
+    )
+    return response.choices[0].message.content
+    
+```
+
+### Run the function with different versions of content
+
+```python
+
+# Run multiple times to see what LLM outputs
+for i in range(3):
+    write_email(content="Please write an email to apologize to a customer who had a bad experience with our product")
+
+write_email(content="Please write an email to apologize to a customer who had a bad experience with our product and offer a discount")
+
+write_email(content="Please write an email to apologize to a customer who had a bad experience with our product and give a refund")
+
+
+customers = [
+    {"user_id": "1", "name": "John Doe", "gender": "male", "product_name": "Product A",  "complaint": "The product is not good"},
+    {"user_id": "2", "name": "Jane Doe", "gender": "female", "product_name": "Product B",  "complaint": "I need refund"},
 ]
-analyze_weather(content=content, variables={"weather": data})
+write_email_to_customers(
+    content="""
+    Based on the following CUSTOMERS dataset 
+    
+    CUSTOMERS:
+    {{ customers }}
 
+    Please write an email to apologize to each customer, and return the emails in the following format:
+
+    {{ emails }}
+""", 
+    llm_config={"model": "gpt-4o-mini"},
+    variables={"customers": customers}
+)
+
+```
+
+### Check the data for the prompt, versions and runs
+
+```python
+from promptsite import PromptSite
+
+ps = PromptSite()
+
+# Get the prompt as a dictionary
+simple_prompt = ps.prompts.where(prompt_id="email-writer").one()
+
+# Get the versions as a list of dictionaries
+simple_prompt_versions = ps.versions.where(prompt_id=simple_prompt["id"]).all()
+
+# Get all the runs for the prompt as a pandas dataframe
+simple_prompt_runs = ps.runs.where(prompt_id=simple_prompt["id"]).only(["run_id", "llm_config", "llm_output", "execution_time"]).as_df()
+
+# Get the prompt as a dictionary
+variable_prompt = ps.prompts.where(prompt_id="email-writer-to-customers").one()
+
+# Get the versions as a list of dictionaries
+variable_prompt_versions = ps.versions.where(prompt_id=variable_prompt["id"]).all()
+
+# Get all the runs for the prompt as a pandas dataframe
+variable_prompt_runs = ps.runs.where(prompt_id=variable_prompt["id"]).as_df()
 ```
 
 ## Python Core APIs
@@ -102,10 +161,6 @@ from promptsite.config import Config
 # you can use either file or git storage
 ps = PromptSite()
 
-# Initialize PromptSite with git storage
-# config = Config()
-# config.save_config({"storage_backend": "git", "remote": "https://github.com/user/repo.git"})
-# ps = PromptSite(config.get_storage_backend())
 
 # Register a new prompt
 prompt = ps.register_prompt(
@@ -147,8 +202,6 @@ runs = ps.list_runs("translation-prompt", new_version.version_id)
 run = ps.get_run("translation-prompt", version_id=new_version.version_id, run_id=runs[-1].run_id)
 ```
 
-
-
 ## CLI Commands
 
 ### Storage Backend Setup
@@ -158,13 +211,6 @@ Initialize PromptSite with the defaultfile storage:
 
 ```bash
 promptsite init
-```
-
-#### Git Storage
-Initialize with Git storage and remote repository:
-
-```bash
-promptsite init --config '{"storage_backend": "git", "remote": "https://github.com/user/repo.git", "branch": "main", "auto_sync": true}'
 ```
 
 ### Prompt Management
@@ -207,11 +253,6 @@ promptsite run get my-prompt <run-id>
 8. Get the last run:
 ```bash
 promptsite run last-run my-prompt
-```
-
-8. Sync with Git remote (if using Git storage):
-```bash
-promptsite sync-git
 ```
 
 For more detailed documentation and examples, visit our [documentation](https://dkuang1980.github.io/promptsite/).

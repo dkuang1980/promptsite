@@ -17,7 +17,7 @@ def tracker(
     ps: Optional[PromptSite] = None,
     llm_config: Optional[Dict] = None,
     variables: Optional[Dict] = None,
-    disable_tracking: bool = False
+    disable_tracking: bool = False,
 ) -> Callable:
     """
     Decorator to automatically register prompts and track their executions.
@@ -60,13 +60,13 @@ def tracker(
                 prompt = ps.get_prompt(prompt_id)
 
                 version = prompt.get_latest_version()
-                
+
                 # Add a new version if content or variables changed
-                
+
                 if (
-                    version is None or
-                    version.content != prompt_content or
-                    not version.compare_variables(prompt_variables_config or {})
+                    version is None
+                    or version.content != prompt_content
+                    or not version.compare_variables(prompt_variables_config or {})
                 ):
                     ps.update_prompt(
                         prompt_id,
@@ -78,7 +78,7 @@ def tracker(
                         prompt_content,
                         variables=prompt_variables_config,
                     )
-                
+
             except PromptNotFoundError:
                 # Register new prompt if it doesn't exist
                 prompt = ps.register_prompt(
@@ -89,7 +89,7 @@ def tracker(
                     variables=variables,
                 )
                 version = prompt.get_latest_version()
-            
+
             prompt_content = version.build_final_prompt(
                 kwargs.get("variables", {}),
                 no_instructions=kwargs.get("no_instructions", False),

@@ -153,7 +153,61 @@ run = ps.get_last_run(
 print(f"Run ID: {run.run_id}")
 print(f"Output: {run.llm_output}")
 print(f"Execution Time: {run.execution_time}s")
-```     
+```  
+
+### Use Query API
+
+PromptSite supports a query API to get prompts, versions and runs.
+
+#### Get All Prompts
+
+```python
+prompts = ps.prompts.all()
+```
+
+#### Get All Versions for a Prompt
+
+```python
+versions = ps.versions.where(prompt_id="translation-prompt").all()
+```
+
+#### Get All Runs for a Prompt
+
+```python
+runs = ps.runs.where(prompt_id="translation-prompt").all()
+```
+
+
+#### Get All Runs for a Version
+
+```python
+runs = ps.runs.where(prompt_id="translation-prompt", version_id="translation-prompt-1").all()
+```
+
+#### Limit the columns returned
+
+```python
+runs = ps.runs.where(prompt_id="translation-prompt", version_id="translation-prompt-1").only(["run_id", "llm_output", "execution_time"]).all()
+```
+
+#### Get the prompt as a dictionary
+
+```python
+prompt = ps.prompts.where(prompt_id="translation-prompt").one()
+```
+
+#### Get the versions as a dataframe
+
+```python
+versions = ps.versions.where(prompt_id="translation-prompt").as_df()
+```
+
+#### Get the runs as a dataframe
+
+```python
+runs = ps.runs.where(prompt_id="translation-prompt").as_df()
+```
+
 
 ### Using Variables
 

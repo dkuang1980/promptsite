@@ -71,6 +71,12 @@ Variables are automatically validated when used in prompts. The validation ensur
 
 We validate the values of the variables in the decorator @tracker when the final prompt is built.
 
+You can disable validation of variables by setting the `disable_validation` flag to `True`. It is useful when you have validated the variables in the prompt, it can reduce the run time of the decorated function. See the example below:
+
+```python
+ArrayVariable(model=Weather, disable_validation=True)  # Disable validation of the variable
+```
+
 ## Array Variables
 
 Array variables are particularly useful for handling lists of structured data. They support Pydantic models as their item type:

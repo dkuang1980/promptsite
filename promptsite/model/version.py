@@ -8,7 +8,7 @@ except ImportError:
 import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from jinja2 import Template
 
@@ -84,13 +84,15 @@ class Version:
     def build_final_prompt(
         self,
         values: Dict[str, Any],
-        no_instructions: bool = False,
+        no_instructions: Optional[bool] = False,
         custom_instructions: Optional[str] = "",
     ) -> str:
         """Build the final prompt with the variables of the version.
 
         Args:
             values (Dict[str, Any]): The values of the variables
+            no_instructions (Optional[bool]): Whether to use the custom instructions
+            custom_instructions (Optional[str]): The custom instructions
 
         Returns:
             str: The final prompt
@@ -154,21 +156,31 @@ class Version:
 
         return True
 
-    def to_dict(self) -> Dict:
+    def to_dict(self, columns: Optional[List[str]] = None) -> Dict:
         """Convert Version to a dictionary with serializable values.
 
         Returns:
             Dict: Dictionary containing the version's data
         """
-        return {
-            "content": self.content,
-            "created_at": str(self.created_at),
-            "version_id": self.version_id,
-            "runs": [run.to_dict() for run in self.runs.values()],
-            "variables": {k: v.to_dict() for k, v in self.variables.items()}
-            if self.variables
-            else None,
-        }
+        if columns is None:
+            columns = ["content", "created_at", "version_id", "runs", "variables"]
+
+        _dict = {}
+        if "content" in columns:
+            _dict["content"] = self.content
+        if "created_at" in columns:
+            _dict["created_at"] = str(self.created_at)
+        if "version_id" in columns:
+            _dict["version_id"] = self.version_id
+        if "runs" in columns:
+            _dict["runs"] = [run.to_dict() for run in self.runs.values()]
+        if "variables" in columns:
+            _dict["variables"] = (
+                {k: v.to_dict() for k, v in self.variables.items()}
+                if self.variables
+                else None
+            )
+        return _dict
 
     @classmethod
     def from_dict(cls, data: Dict) -> "Version":
