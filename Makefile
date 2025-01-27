@@ -9,7 +9,7 @@ lint:
 
 test:
 	@echo "Running tests with pytest..."
-	poetry run pytest tests/ -cov=promptsite --disable-warnings -q
+	poetry run pytest tests/ -cov=promptsite --disable-warnings -q -s
 
 clean:
 	@echo "Cleaning up build artifacts and cache..."
