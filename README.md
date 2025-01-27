@@ -5,7 +5,7 @@
 
 *You will never miss a prompt version again with PromptSite.*
 
-PromptSite is a lightweight prompt management package that helps you version control, track, experiment and debug with your LLM prompts with ease. It mostly focuses on the experiemental and prototyping phase before shipping to production. The main features are:
+PromptSite is a lightweight prompt management package that helps you version control, track, experiment and debug with your LLM prompts with ease. The main features are:
 
 - **Version Control**: Track versions during prompt engineering
 - **Flexible Storage**: Choose between local file storage or Git-based storage
