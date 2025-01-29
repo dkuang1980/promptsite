@@ -1,5 +1,7 @@
 # PromptSite
 
+[![Test](https://github.com/dkuang1980/promptsite/actions/workflows/test.yml/badge.svg)](https://github.com/dkuang1980/promptsite/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/release/dkuang1980/promptsite?style=flat-square)](https://github.com/dkuang1980/promptsite/releases)
 
 ## Overview
 
