@@ -1,0 +1,23 @@
+name: Test
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - main 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+      - name: Run tests
+        run: |
+          poetry run pytest -cov=promptsite --cov-report=html --cov-fail-under=75 -s tests/ 
