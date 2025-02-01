@@ -7,7 +7,6 @@ from datamodel_code_generator import generate
 from pydantic import *  # noqa F403
 from pydantic import BaseModel, ValidationError
 
-
 class Variable:
     """Base class for all variable types.
 
@@ -83,7 +82,7 @@ class ComplexVariable(Variable):
         model (BaseModel): The Pydantic model used for validation and schema generation
         is_output (bool): Whether the variable is an output variable
     """
-
+    
     def __init__(self, model: BaseModel, is_output: bool = False, **kwargs):
         self.model = model
         self.is_output = is_output
@@ -127,7 +126,7 @@ class ComplexVariable(Variable):
             if not self.is_output
             else "",
         )
-
+    
     def to_dict(self) -> Dict[str, Any]:
         """Convert the complex variable instance to a dictionary representation.
 
@@ -240,14 +239,18 @@ class ArrayVariable(ComplexVariable):
 {dataset}
 """
 
-    _output_schema_instructions = """The output should be formatted as a list of a JSON instances that conforms to the JSON schema below.
+    _output_schema_instructions = """The output should be formatted as a list of JSON instances that conforms to the JSON schema below.
 
 As an example, for the schema {{"properties": {{"foo": {{"title": "Foo", "description": "a list of strings", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
 the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of the schema. The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
 
-Here is the output schema:
+Here is the instance schema in the output:
 ```
 {schema}
+```
+Here is an example of the output:
+```
+[{{"foo": ["bar", "baz"]}}, {{"foo": ["bar", "baz"]}}]
 ```
 """
 

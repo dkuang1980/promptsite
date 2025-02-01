@@ -70,3 +70,15 @@ class RunNotFoundError(PromptSiteError):
     """Raised when a run is not found."""
 
     pass
+
+
+class LLMBackendNotImplementedError(PromptSiteError):
+    """Raised when an LLM backend is not implemented."""
+
+    pass
+
+
+class DatasetFieldNotFoundError(PromptSiteError):
+    """Raised when a field is not found in the dataset."""
+
+    pass

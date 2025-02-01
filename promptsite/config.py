@@ -8,7 +8,7 @@ from .exceptions import StorageBackendNotFoundError
 from .storage import StorageBackend
 from .storage.file import FileStorage
 from .storage.git import GitStorage
-
+from .llm import LLM, OpenAI, Anthropic, Ollama
 
 class Config:
     """Configuration manager for PromptFlow settings and storage backend.
@@ -43,22 +43,42 @@ class Config:
             Dict[str, Any]: Configuration dictionary
         """
         self.config = {}
-        self.config.setdefault("storage_backend", "file")
-
         if os.path.exists(self.config_file):
             with open(self.config_file, "r", encoding="utf-8") as f:
                 self.config = yaml.safe_load(f) or {}
+        
+        self.config.setdefault("storage_backend", "file")
+        self.config.setdefault("llm_backend", "openai")
+        self.config.setdefault("llm_config", {})
         return self.config
 
     def save_config(self, config: Dict[str, Any] = None) -> None:
         """Save current configuration to file with default values."""
         config = config or {}
         config.setdefault("storage_backend", "file")
+        config.setdefault("llm_backend", "openai")
+        config.setdefault("llm_config", {})
 
         with open(self.config_file, "w", encoding="utf-8") as f:
             yaml.dump(config, f, indent=4)
 
         self.config = config
+
+    def get_llm_backend(self) -> LLM:
+        """
+        Get configured LLM backend instance.
+        """
+        backend_type: str = self.config["llm_backend"]
+        if backend_type == "openai":
+            return OpenAI(self.config["llm_config"])
+        elif backend_type == "anthropic":
+            return Anthropic(self.config["llm_config"])
+        elif backend_type == "ollama":
+            return Ollama(self.config["llm_config"])
+        else:
+            raise LLMBackendNotImplementedError(
+                f"LLM backend '{backend_type}' not implemented"
+            )
 
     def get_storage_backend(self) -> StorageBackend:
         """
