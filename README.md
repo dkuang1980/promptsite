@@ -114,6 +114,10 @@ customers = [
 ]
 
 # Or generate data using your own LLM backend
+from promptsite.config import Config
+config = Config()
+config.save_config({"llm_backend": "openai", "llm_config": {"model": "gpt-4o-mini"}})
+
 customers = Dataset.generate(
     id="customers_with_different_complaints",
     variable=ArrayVariable(model=Customer),

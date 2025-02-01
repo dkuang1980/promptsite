@@ -24,6 +24,12 @@ Or explicitly specify file storage:
 promptsite init --config '{"storage_backend": "file"}'
 ```
 
+```python
+from promptsite.config import Config
+config = Config()
+config.save_config({"storage_backend": "file"})
+```
+
 ### Git Storage
 
 The Git storage backend stores prompts in a Git repository, enabling version control and collaboration. To use Git storage:
@@ -32,6 +38,13 @@ The Git storage backend stores prompts in a Git repository, enabling version con
 promptsite init --config '{"storage_backend": "git", "remote": "https://github.com/user/repo.git", "branch": "main"}'
 ```
 
+```python
+from promptsite.config import Config
+config = Config()
+config.save_config({"storage_backend": "git", "remote": "https://github.com/user/repo.git", "branch": "main"})
+```
+
+Or explicitly specify Git storage:
 Available Git configuration options:
 
 - `storage_backend`: Set to "git"
@@ -46,6 +59,44 @@ If `auto_sync` is set to `true`, PromptSite will automatically sync with the rem
 ```bash
 promptsite init --config '{"storage_backend": "git", "remote": "https://github.com/user/repo.git", "branch": "main", "auto_sync": true}'
 ```
+
+### LLM Backend Configuration
+
+PromptSite supports multiple LLM backends. You can configure the LLM backend and its configuration in the configuration file.
+
+The following example shows how to configure the OpenAI backend and its configuration.
+```bash
+promptsite init --config '{"llm_backend": "openai", "llm_config": {"model": "gpt-4o-mini"}}'
+```
+
+```python
+from promptsite.config import Config
+config = Config()
+config.save_config({"llm_backend": "openai", "llm_config": {"model": "gpt-4o-mini"}})
+```
+
+The following example shows how to configure the Anthropic backend and its configuration.
+```bash
+promptsite init --config '{"llm_backend": "anthropic", "llm_config": {"model": "claude-3-5-sonnet-20240620"}}'
+```
+
+```python
+from promptsite.config import Config
+config = Config()
+config.save_config({"llm_backend": "anthropic", "llm_config": {"model": "claude-3-5-sonnet-20240620"}})
+```
+
+The following example shows how to configure the Ollama backend and its configuration.
+```bash
+promptsite init --config '{"llm_backend": "ollama", "llm_config": {"model": "deepseek-r1:8b"}}'
+```
+
+```python
+from promptsite.config import Config
+config = Config()
+config.save_config({"llm_backend": "ollama", "llm_config": {"model": "deepseek-r1:8b"}})
+```
+
 
 ## Storage Structure
 
