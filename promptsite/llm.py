@@ -1,13 +1,13 @@
 from typing import Any, Dict, Optional
 
-from .exceptions import LlmConfigError
+from .exceptions import ConfigError
 
 
 class LLM:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         if "model" not in self.config:
-            raise LlmConfigError("model is not set in config")
+            raise ConfigError("LLM model is not set in config")
 
     def run(self, prompt: str, **kwargs):
         raise NotImplementedError("run method not implemented")
