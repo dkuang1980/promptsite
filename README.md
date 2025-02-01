@@ -5,22 +5,22 @@
 
 ## Overview
 
-*You will never miss a prompt version again with PromptSite.*
+PromptSite is a lightweight prompt management package that helps you version control, develop, and experiment with your LLM prompts with ease. 
 
-PromptSite is a lightweight prompt management package that helps you version control, track, experiment and debug with your LLM prompts with ease. The main features are:
-
-- **Version Control**: Track versions during prompt engineering
-- **Flexible Storage**: Choose between local file storage or Git-based storage
-- **Run Tracking**: Automatically track and analyze prompt executions
+## Key Features
+- **Version Control**: Track and manage different versions of your prompts during the engineering process
+- **Flexible Storage**: Choose between local file storage or Git-based storage backends
+- **Run Tracking**: Automatically track and analyze prompt executions and LLM responses  
+- **Synthetic Data Generation**: Generate synthetic relational data to quickly test prompts
 - **CLI Interface**: Comprehensive command-line tools for prompt management
-- **Python Decorator**: Simple integration with existing LLM code
-- **Variable Management**: Manage and validate variables for prompts
+- **Python Decorator**: Simple integration with existing LLM code through decorators
+- **Variable Management**: Define, validate and manage variables used in prompts
 
-## Key Differentiators
-- **Focused on Experimentation**: Optimized for rapid prompt iteration, debugging, and experimentation during development
+## Key Differentiators 
 - **No Heavy Lifting**: Minimal setup, no servers, databases, or API keys required - works directly with your local filesystem or Git
 - **Seamless Integration**: Automatically tracks prompt versions and runs through simple Python decorators
 - **Developer-Centric**: Designed for data scientists and engineers to easily integrate into existing ML/LLM workflows
+- **Designed for Experimentation**: Optimized for rapid prompt iteration, debugging, and experimentation for LLM development
 
 
 Checkout the [documentation](https://dkuang1980.github.io/promptsite/).
@@ -62,7 +62,9 @@ def write_email(content=None, **kwargs):
 
 # A complex prompt with variables
 from promptsite.model.variable import ArrayVariable
+from promptsite.model.dataset import Dataset
 from pydantic import BaseModel, Field
+
 
 class Customer(BaseModel):
     user_id: str = Field(description="The user id of the customer")
@@ -105,10 +107,20 @@ write_email(content="Please write an email to apologize to a customer who had a 
 write_email(content="Please write an email to apologize to a customer who had a bad experience with our product and give a refund")
 
 
+# pass in existing data
 customers = [
     {"user_id": "1", "name": "John Doe", "gender": "male", "product_name": "Product A",  "complaint": "The product is not good"},
     {"user_id": "2", "name": "Jane Doe", "gender": "female", "product_name": "Product B",  "complaint": "I need refund"},
 ]
+
+# Or generate data using your own LLM backend
+customers = Dataset.generate(
+    id="customers_with_different_complaints",
+    variable=ArrayVariable(model=Customer),
+    description="Customers with different complaints",
+    num_rows=10
+).data
+
 write_email_to_customers(
     content="""
     Based on the following CUSTOMERS dataset 
