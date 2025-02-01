@@ -163,7 +163,7 @@ Here is an example of the output:
             else "a JSON instance",
             schema=json.dumps(variable.model.model_json_schema()),
         )
-        print(prompt)
+
         config = Config()
         llm = config.get_llm_backend()
         response = llm.run(prompt)
