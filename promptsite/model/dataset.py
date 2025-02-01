@@ -1,15 +1,20 @@
+from typing import TYPE_CHECKING, Any, Callable, Dict
+
 import pandas as pd
-from typing import Dict, Any, TYPE_CHECKING, Callable
+
 if TYPE_CHECKING:
     from promptsite.model.variable import Variable
-from promptsite.config import Config
-from jinja2 import Template
 import json
+
+from jinja2 import Template
+
+from promptsite.config import Config
 from promptsite.exceptions import DatasetFieldNotFoundError
+
 
 class Dataset:
     """Class for dataset model.
-    
+
     Args:
         id: The id of the dataset.
         variable: The Variable object of the dataset.
@@ -31,7 +36,7 @@ class Dataset:
             id="customers",
             variable=ArrayVariable(model=CustomerModel, description="customers"),
             data=[
-                {"id": 1, "name": "John", "created_at": "2021-01-01"}, 
+                {"id": 1, "name": "John", "created_at": "2021-01-01"},
                 {"id": 2, "name": "Jane", "created_at": "2021-01-02"}
             ],
             description="customers description"
@@ -57,28 +62,28 @@ class Dataset:
         )
         ```
     """
+
     def __init__(
         self,
         id: str,
         variable: "Variable",
-        data: Any, 
+        data: Any,
         description: str = None,
-        relationships: Dict[str, "Dataset"] = None
+        relationships: Dict[str, "Dataset"] = None,
     ):
         self.id = id
         self.variable = variable
         self.data = data
-        self.description = description  
+        self.description = description
         self.relationships = relationships
 
     def __getitem__(self, field: str):
         """Get an metadata of a field from the dataset when defining the relationships."""
         if field not in self.variable.model.model_fields:
-            raise DatasetFieldNotFoundError(f"{field} is not a valid field for this dataset.")
-        return {
-            "field": field,
-            "dataset": self
-        }
+            raise DatasetFieldNotFoundError(
+                f"{field} is not a valid field for this dataset."
+            )
+        return {"field": field, "dataset": self}
 
     @classmethod
     def generate(
@@ -87,10 +92,10 @@ class Dataset:
         variable: "Variable",
         description: str = None,
         relationships: Dict[str, Callable] = None,
-        num_rows: int = None
+        num_rows: int = None,
     ) -> "Dataset":
         """Generate the dataset.
-        
+
         Args:
             id: The id of the dataset.
             variable: The Variable object of the dataset.
@@ -100,7 +105,8 @@ class Dataset:
         """
         from promptsite.model.variable import ArrayVariable
 
-        prompt = Template("""You are a data expert who can generates data that satisfies the{% if description %} DATA DESCRIPTION,{% endif %} the DATA REQUIREMENT and the OUTPUT SCHEMA{% if extra_datasets %}, given the EXTRA DATASETS{% endif %}.
+        prompt = Template(
+            """You are a data expert who can generates data that satisfies the{% if description %} DATA DESCRIPTION,{% endif %} the DATA REQUIREMENT and the OUTPUT SCHEMA{% if extra_datasets %}, given the EXTRA DATASETS{% endif %}.
 
 {% if description %}
 DATA DESCRIPTION:
@@ -142,21 +148,30 @@ Here is an example of the output:
 ```
 [{"foo": ["bar", "baz"]}, {"foo": ["bar", "baz"]}]
 ```
-""").render(
+"""
+        ).render(
             requirement=description,
-            extra_datasets=set([relationship["dataset"] for relationship in relationships.values()]) if relationships else None,
+            extra_datasets=set(
+                [relationship["dataset"] for relationship in relationships.values()]
+            )
+            if relationships
+            else None,
             relationships=relationships,
             description=variable.description,
-            json_instructions=f"a list of {num_rows or ''} JSON instances" if isinstance(variable, ArrayVariable) else "a JSON instance",
-            schema=json.dumps(variable.model.model_json_schema())
-        ) 
+            json_instructions=f"a list of {num_rows or ''} JSON instances"
+            if isinstance(variable, ArrayVariable)
+            else "a JSON instance",
+            schema=json.dumps(variable.model.model_json_schema()),
+        )
         print(prompt)
         config = Config()
         llm = config.get_llm_backend()
         response = llm.run(prompt)
-        
+
         try:
-            data = json.loads(response.strip().replace("```json", "").replace("```", ""))
+            data = json.loads(
+                response.strip().replace("```json", "").replace("```", "")
+            )
         except json.JSONDecodeError:
             data = response
 
@@ -164,7 +179,7 @@ Here is an example of the output:
 
     def to_df(self) -> pd.DataFrame:
         """Convert the dataset to a pandas DataFrame.
-        
+
         Returns:
             pd.DataFrame: The pandas DataFrame of the dataset.
         """
@@ -175,7 +190,7 @@ Here is an example of the output:
 
     def validate(self) -> bool:
         """Validate the dataset.
-        
+
         Returns:
             bool: True if the dataset is valid according to the variable model, False otherwise.
         """

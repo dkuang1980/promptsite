@@ -7,6 +7,7 @@ from datamodel_code_generator import generate
 from pydantic import *  # noqa F403
 from pydantic import BaseModel, ValidationError
 
+
 class Variable:
     """Base class for all variable types.
 
@@ -82,7 +83,7 @@ class ComplexVariable(Variable):
         model (BaseModel): The Pydantic model used for validation and schema generation
         is_output (bool): Whether the variable is an output variable
     """
-    
+
     def __init__(self, model: BaseModel, is_output: bool = False, **kwargs):
         self.model = model
         self.is_output = is_output
@@ -126,7 +127,7 @@ class ComplexVariable(Variable):
             if not self.is_output
             else "",
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert the complex variable instance to a dictionary representation.
 

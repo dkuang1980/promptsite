@@ -355,7 +355,7 @@ class PromptSite:
             return sorted(runs, key=lambda x: x.created_at)[-1]
 
         return None
-        
+
     @property
     def prompts(self) -> Query:
         """Get all prompts as a pandas DataFrame."""
