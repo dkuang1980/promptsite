@@ -26,7 +26,7 @@ class LLM:
         raise NotImplementedError("run method not implemented")
 
 
-class OpenAI(LLM):
+class OpenAiLLM(LLM):
     """
     LLM backend for OpenAI.
 
@@ -57,11 +57,11 @@ class OpenAI(LLM):
         ]
         if system_prompt:
             messages.insert(0, {"role": "system", "content": system_prompt})
-        response = self.client.chat.completions.create(messages=messages, **self.config)
+        response = self.client.chat.completions.create(messages=messages, **{**self.config, **kwargs})
         return response.choices[0].message.content
 
 
-class Ollama(LLM):
+class OllamaLLM(LLM):
     """
     LLM backend for Ollama.
 
@@ -83,11 +83,11 @@ class Ollama(LLM):
         ]
         if system_prompt:
             messages.insert(0, {"role": "system", "content": system_prompt})
-        response = chat(messages=messages, **self.config)
+        response = chat(messages=messages, **{**self.config, **kwargs})
         return response.message.content
 
 
-class Anthropic(LLM):
+class AnthropicLLM(LLM):
     """
     LLM backend for Anthropic.
 
@@ -112,7 +112,7 @@ class Anthropic(LLM):
             messages=[
                 {"role": "user", "content": [{"type": "text", "text": user_prompt}]}
             ],
-            **self.config,
+            **{**self.config, **kwargs},
             **({} if system_prompt is None else {"system": system_prompt}),
         )
 

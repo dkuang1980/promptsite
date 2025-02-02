@@ -5,7 +5,7 @@ from typing import Any, Dict
 import yaml
 
 from .exceptions import LLMBackendNotImplementedError, StorageBackendNotFoundError
-from .llm import LLM, Anthropic, Ollama, OpenAI
+from .llm import LLM, AnthropicLLM, OllamaLLM, OpenAiLLM
 from .storage import StorageBackend
 from .storage.file import FileStorage
 from .storage.git import GitStorage
@@ -71,11 +71,11 @@ class Config:
         """
         backend_type: str = self.config["llm_backend"]
         if backend_type == "openai":
-            return OpenAI(self.config["llm_config"])
+            return OpenAiLLM(self.config["llm_config"])
         elif backend_type == "anthropic":
-            return Anthropic(self.config["llm_config"])
+            return AnthropicLLM(self.config["llm_config"])
         elif backend_type == "ollama":
-            return Ollama(self.config["llm_config"])
+            return OllamaLLM(self.config["llm_config"])
         else:
             raise LLMBackendNotImplementedError(
                 f"LLM backend '{backend_type}' not implemented"
