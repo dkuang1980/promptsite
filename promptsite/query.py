@@ -106,6 +106,7 @@ class PromptQuery(Query):
         self.prompt_id = prompt_id
         return self
 
+
 class VersionQuery(Query):
     """Query Class for versions.
 
@@ -225,10 +226,7 @@ class RunQuery(Query):
         return run_dicts
 
     def where(
-        self,
-        prompt_id: str,
-        version_id: str = None,
-        run_id: str = None
+        self, prompt_id: str, version_id: str = None, run_id: str = None
     ) -> "RunQuery":
         """Filter the query.
 

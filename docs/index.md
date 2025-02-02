@@ -1,22 +1,21 @@
 # PromptSite
 
-*You will never miss a prompt version again with PromptSite.*
-
-PromptSite is a lightweight prompt management package that helps you version control, track, and experiment with your LLM prompts with ease. It focuses on the experimental and prototyping phase before shipping to production.
+PromptSite is a lightweight prompt management package that helps you version control, develop, and experiment with your LLM prompts with ease. 
 
 ## Key Features
 - **Version Control**: Track and manage different versions of your prompts during the engineering process
 - **Flexible Storage**: Choose between local file storage or Git-based storage backends
 - **Run Tracking**: Automatically track and analyze prompt executions and LLM responses  
+- **Synthetic Data Generation**: Generate synthetic relational data to quickly test prompts
 - **CLI Interface**: Comprehensive command-line tools for prompt management
 - **Python Decorator**: Simple integration with existing LLM code through decorators
 - **Variable Management**: Define, validate and manage variables used in prompts
 
 ## Key Differentiators 
-- **Focused on Experimentation**: Optimized for rapid prompt iteration, debugging, and experimentation during development
 - **No Heavy Lifting**: Minimal setup, no servers, databases, or API keys required - works directly with your local filesystem or Git
 - **Seamless Integration**: Automatically tracks prompt versions and runs through simple Python decorators
 - **Developer-Centric**: Designed for data scientists and engineers to easily integrate into existing ML/LLM workflows
+- **Designed for Experimentation**: Optimized for rapid prompt iteration, debugging, and experimentation for LLM development
 
 ## Quick Start
 
@@ -72,7 +71,7 @@ run = ps.add_run(
 from promptsite.decorator import tracker
 from pydantic import BaseModel, Field
 from promptsite.model.variable import ArrayVariable
-
+from promptsite.model.dataset import Dataset
 class Weather(BaseModel):
     date: str = Field(description="The date of the weather data.")
     temperature: float = Field(description="The temperature in Celsius.")
@@ -100,11 +99,22 @@ content = """The following dataset describes the weather for each day:
 Based on the weather data, predict which day is best for a picnic.
 """
 
+# pass in existing data
 data = [
     {"date": "2024-01-01", "temperature": 20, "condition": "sunny"},
     {"date": "2024-01-02", "temperature": 15, "condition": "rainy"},
     {"date": "2024-01-03", "temperature": 25, "condition": "sunny"}
 ]
+
+# Or generate weather data using your own LLM backend
+weather_data = Dataset.generate(
+    id="weather_data",
+    variable=ArrayVariable(model=Weather),
+    description="Weather with some variety",
+    num_rows=7
+)
+data = weather_data.data
+
 analyze_weather(content=content, variables={"weather": data})
 ```
 

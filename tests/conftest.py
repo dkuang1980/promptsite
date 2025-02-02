@@ -29,7 +29,14 @@ def config(storage_path):
     if os.path.exists(".promptsite"):
         shutil.rmtree(".promptsite")
 
-    config = Config()
+    config = Config(
+        {
+            "storage_backend": "file",
+            "llm_backend": "openai",
+            "llm_config": {"model": "gpt-4o-mini"},
+        }
+    )
+
     yield config
     # Cleanup config file and directory
     if os.path.exists(config.config_file):

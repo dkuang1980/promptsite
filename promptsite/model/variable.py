@@ -240,14 +240,18 @@ class ArrayVariable(ComplexVariable):
 {dataset}
 """
 
-    _output_schema_instructions = """The output should be formatted as a list of a JSON instances that conforms to the JSON schema below.
+    _output_schema_instructions = """The output should be formatted as a list of JSON instances that conforms to the JSON schema below.
 
 As an example, for the schema {{"properties": {{"foo": {{"title": "Foo", "description": "a list of strings", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
 the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of the schema. The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
 
-Here is the output schema:
+Here is the instance schema in the output:
 ```
 {schema}
+```
+Here is an example of the output:
+```
+[{{"foo": ["bar", "baz"]}}, {{"foo": ["bar", "baz"]}}]
 ```
 """
 
