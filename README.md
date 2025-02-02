@@ -11,7 +11,7 @@ PromptSite is a lightweight prompt management package that helps you version con
 - **Version Control**: Track and manage different versions of your prompts during the engineering process
 - **Flexible Storage**: Choose between local file storage or Git-based storage backends
 - **Run Tracking**: Automatically track and analyze prompt executions and LLM responses  
-- **Synthetic Data Generation**: Generate synthetic relational data to quickly test prompts
+- **Synthetic Data Generation**: Generate synthetic relational datasets to test prompts 
 - **CLI Interface**: Comprehensive command-line tools for prompt management
 - **Python Decorator**: Simple integration with existing LLM code through decorators
 - **Variable Management**: Define, validate and manage variables used in prompts
@@ -106,14 +106,11 @@ write_email(content="Please write an email to apologize to a customer who had a 
 
 write_email(content="Please write an email to apologize to a customer who had a bad experience with our product and give a refund")
 
+```
 
-# pass in existing data
-customers = [
-    {"user_id": "1", "name": "John Doe", "gender": "male", "product_name": "Product A",  "complaint": "The product is not good"},
-    {"user_id": "2", "name": "Jane Doe", "gender": "female", "product_name": "Product B",  "complaint": "I need refund"},
-]
+### Generate synthetic data for variables using your LLM backend
 
-# Or generate data using your own LLM backend
+```python
 from promptsite.config import Config
 config = Config()
 config.save_config({"llm_backend": "openai", "llm_config": {"model": "gpt-4o-mini"}})
