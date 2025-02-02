@@ -24,13 +24,15 @@ nav:
     - Python API: user-guide/python-api.md
     - Decorator Usage: user-guide/decorator.md
     - Variable Definitions: user-guide/variable-definitions.md
+    - Synthetic Datasets: user-guide/dataset.md
   - API Reference:
     - Core: api/core.md
     - Storage: api/storage.md
     - Models: api/models.md
     - Exceptions: api/exceptions.md
     - Query: api/query.md
-
+    - LLM: api/llm.md
+  
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true

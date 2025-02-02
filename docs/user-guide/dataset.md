@@ -1,4 +1,4 @@
-# Dataset Guide
+# Synthetic Datasets
 
 The Dataset class in PromptSite provides functionality for managing and generating structured data that can be used in your prompts.
 
@@ -112,6 +112,7 @@ orders = Dataset.generate(
     description="Orders below 100 dollars",
     relationships={"customer_id": customers["id"]} # Maintain relationship with "customers" dataset
 )
+```
 ### Controlling Generation Size
 
 You can specify the number of rows to generate:
