@@ -120,7 +120,7 @@ customers = Dataset.generate(
     variable=ArrayVariable(model=Customer),
     description="Customers with different complaints",
     num_rows=10
-).data
+)
 
 write_email_to_customers(
     content="""
@@ -134,7 +134,7 @@ write_email_to_customers(
     {{ emails }}
 """, 
     llm_config={"model": "gpt-4o-mini"},
-    variables={"customers": customers}
+    variables={"customers": customers.data}
 )
 
 ```
