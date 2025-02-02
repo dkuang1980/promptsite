@@ -7,10 +7,11 @@ class LLM:
     """
     Base class for LLM backends.
     To add a new LLM backend, you need to implement the `run` method.
-    
+
     Args:
         config: A dictionary of configuration for the LLM backend.
     """
+
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         if "model" not in self.config:
@@ -38,6 +39,7 @@ class OpenAiLLM(LLM):
             "max_tokens": 100
         }
     """
+
     def __init__(self, config: Dict[str, Any]):
         import openai
 
@@ -57,7 +59,9 @@ class OpenAiLLM(LLM):
         ]
         if system_prompt:
             messages.insert(0, {"role": "system", "content": system_prompt})
-        response = self.client.chat.completions.create(messages=messages, **{**self.config, **kwargs})
+        response = self.client.chat.completions.create(
+            messages=messages, **{**self.config, **kwargs}
+        )
         return response.choices[0].message.content
 
 
@@ -68,6 +72,7 @@ class OllamaLLM(LLM):
     Args:
         config: A dictionary of configuration for the Ollama backend.
     """
+
     def run(self, user_prompt: str, system_prompt: Optional[str] = None, **kwargs):
         """
         Run the LLM with the given prompt.
@@ -94,6 +99,7 @@ class AnthropicLLM(LLM):
     Args:
         config: A dictionary of configuration for the Anthropic backend.
     """
+
     def __init__(self, config: Dict[str, Any]):
         import anthropic
 
